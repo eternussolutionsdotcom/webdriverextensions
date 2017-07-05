@@ -15,6 +15,7 @@ import static org.openqa.selenium.remote.CapabilityType.PLATFORM;
 import static org.openqa.selenium.remote.CapabilityType.VERSION;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -99,16 +100,25 @@ import com.github.webdriverextensions.junitrunner.annotations.RemoteAddress;
 import com.github.webdriverextensions.junitrunner.annotations.Safari;
 import com.github.webdriverextensions.junitrunner.annotations.ScreenshotsPath;
 import com.google.gson.Gson;
+import com.tngtech.java.junit.dataprovider.DataProviderFrameworkMethod;
+
 
 public class WebDriverRunner extends BlockJUnit4ClassRunner {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebDriverRunner.class);
     private static final List<String> disabledBrowsers = getDisabledBrowsers();
 
-    public static class WebDriverFrameworkMethod extends FrameworkMethod {
+	public static class WebDriverFrameworkMethod extends FrameworkMethod {
 
-        final private BrowserConfiguration browser;
-
+        private BrowserConfiguration browser;
+        
+        //stub constructor to support data driven framework
+        //if using this method then invoking set browser is a must
+        public WebDriverFrameworkMethod(Method method) {
+        	super(method);
+        	browser = null;
+        }
+        
         public WebDriverFrameworkMethod(BrowserConfiguration browser, FrameworkMethod method) {
             super(method.getMethod());
             this.browser = browser;
@@ -119,10 +129,15 @@ public class WebDriverRunner extends BlockJUnit4ClassRunner {
             return String.format("%s%s", super.getName(), browser.toString());
         }
 
-        private BrowserConfiguration getBrowser() {
+        public BrowserConfiguration getBrowser() {
             return browser;
         }
+        
+        public void setBrowser(BrowserConfiguration browser){
+        	this.browser = browser;
+        }
     }
+    
     private static final List<Class> supportedBrowserAnnotations = Arrays.asList(new Class[]{
         Android.class,
         Chrome.class,
@@ -152,7 +167,7 @@ public class WebDriverRunner extends BlockJUnit4ClassRunner {
         IgnoreBrowser.class
     });
 
-    private final Object childrenLock = new Object();
+    private static final Object childrenLock = new Object();
     private volatile Collection<FrameworkMethod> filteredTestAnnotatedMethods = null; // Guarded by childrenLock
 
     private Collection<FrameworkMethod> getFilteredTestAnnotatedMethods() {
@@ -184,8 +199,9 @@ public class WebDriverRunner extends BlockJUnit4ClassRunner {
     }
 
     public WebDriverRunner(Class<?> klass) throws InitializationError {
-        super(klass);
-        DriverPathLoader.loadDriverPaths(getTestClass().getJavaClass().getAnnotation(DriverPaths.class));
+    	super(klass);
+        System.out.println("WebDriverRunner Constructor");
+    	DriverPathLoader.loadDriverPaths(getTestClass().getJavaClass().getAnnotation(DriverPaths.class));
         ScreenshotsPathLoader.loadScreenshotsPath(getTestClass().getJavaClass().getAnnotation(ScreenshotsPath.class));
     }
 
@@ -204,6 +220,9 @@ public class WebDriverRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected List<FrameworkMethod> computeTestMethods() {
+    	
+    	System.out.println("In computeTestMethods");
+    	
         List<FrameworkMethod> testMethods = new ArrayList<>();
         for (FrameworkMethod testAnnotatedMethod : getFilteredTestAnnotatedMethods()) {
             TestMethodContext testMethodContext = new TestMethodContext().addBrowsersFromClassAnnotations(getTestClass()).addBrowsersFromMethodAnnotations(testAnnotatedMethod);
@@ -241,6 +260,9 @@ public class WebDriverRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected void runChild(final FrameworkMethod method, RunNotifier notifier) {
+    	
+    	System.out.println("is method instance of WebDriverFrameworkMethod"+ (method instanceof WebDriverFrameworkMethod));
+    	
         if (method instanceof WebDriverFrameworkMethod) {
             TestMethodContext testMethodContext = new TestMethodContext().addBrowsersFromClassAnnotations(getTestClass()).addBrowsersFromMethodAnnotations(method);
             BrowserConfiguration browser = ((WebDriverFrameworkMethod) method).getBrowser();
