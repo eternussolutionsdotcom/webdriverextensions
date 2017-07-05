@@ -4,7 +4,7 @@
 
     <groupId>com.github.webdriverextensions</groupId>
     <artifactId>webdriverextensions</artifactId>
-    <version>3.5.2-SNAPSHOT</version>
+    <version>3.5.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -60,6 +60,10 @@
             <name>andidev</name>
             <url>https://github.com/andidev</url>
         </contributor>
+        <contributor>
+            <name>swapnilshrikhande</name>
+            <url>https://github.com/swapnilshrikhande</url>
+        </contributor>
     </contributors>
 
     <issueManagement>
@@ -108,6 +112,14 @@
     </properties>
 
     <dependencies>
+    	<!-- Support Data Driven Test Methods -->
+    	<!-- Excel Read/Write --> 
+    	<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.16</version>
+		</dependency>
+    
         <!-- CodeModel -->
         <dependency>
             <groupId>com.sun.codemodel</groupId>
@@ -136,7 +148,7 @@
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
         </dependency>
-
+        
         <!-- Lambdaj -->
         <dependency>
             <groupId>com.googlecode.lambdaj</groupId>
@@ -182,6 +194,27 @@
             <artifactId>phantomjsdriver</artifactId>
             <version>${phantomjsdriver.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>1.7.1</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
