@@ -39,14 +39,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.BrowserType;
 
 public class Bot {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Bot.class);
+    
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Bot.class);
 
     /* Driver */
     public static WebDriver driver() {
         return WebDriverExtensionsContext.getDriver();
     }
-
-
 
     /* Click */
     public static void click(WebElement webElement) {
